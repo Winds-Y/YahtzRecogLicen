@@ -5,8 +5,64 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:YahtzRecogLicen"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
-    <Grid>
-        
+        Title="MainWindow" Height="430" Width="691">
+    <Grid Margin="0,0,2,0">
+
+        <GroupBox Header="1文件处理" HorizontalAlignment="Left" Height="62" Margin="10,0,0,0" VerticalAlignment="Top" Width="269">
+            <DockPanel HorizontalAlignment="Left" Height="45" LastChildFill="False" Margin="0,0,0,-5" VerticalAlignment="Top" Width="258">
+                <Button Content="打开" Name="btn_open" Click="btn_open_Click" Height="18" Width="90" Margin="10 10 10 10" VerticalAlignment="Top" />
+                <Button Content="保存" Name="btn_save" Click="btn_save_Click" Height="18" Width="90" Margin="48 10 10 0" VerticalAlignment="Top" />
+            </DockPanel>
+        </GroupBox>
+        <GroupBox Header="2图片预处理" HorizontalAlignment="Left" Height="127" Margin="10,84,0,0" VerticalAlignment="Top" Width="116">
+            <StackPanel HorizontalAlignment="Left" Height="104" VerticalAlignment="Top" Width="106" Margin="0,0,-2,0">
+                <Button Content="图片灰度化" Height="18" Width="90" Margin="5,5,5,0"/>
+                <Button Content="灰度均衡化" Height="18" Width="90" Margin="5,15,5,0"/>
+                <Button Content="中值滤波" Height="18" Width="90" Margin="5,15,5,0"/>
+            </StackPanel>
+        </GroupBox>
+        <GroupBox Header="4车牌图片处理" HorizontalAlignment="Left" Height="127" Margin="163,84,0,0" VerticalAlignment="Top" Width="116">
+            <StackPanel HorizontalAlignment="Left" Height="104" VerticalAlignment="Top" Width="106" Margin="0,0,-2,0">
+                <Button Content="车牌灰度化" Height="18" Width="90" Margin="5,5,5,0"/>
+                <Button Content="车牌二值化" Height="18" Width="90" Margin="5,15,5,0"/>
+                <Button Content="字符切割" Height="18" Width="90" Margin="5,15,5,0"/>
+            </StackPanel>
+        </GroupBox>
+        <GroupBox Header="3定位处理" HorizontalAlignment="Left" Height="79" Margin="10,242,0,0" VerticalAlignment="Top" Width="116">
+            <StackPanel HorizontalAlignment="Left" Height="53" VerticalAlignment="Top" Width="106" Margin="0,0,-2,0">
+                <Button Content="边缘检测" Height="18" Width="90" Margin="2 5"/>
+                <Button Content="车牌定位" Height="18" Width="90"/>
+            </StackPanel>
+        </GroupBox>
+        <GroupBox Header="5车牌识别" HorizontalAlignment="Left" Height="79" Margin="163,242,0,0" VerticalAlignment="Top" Width="116">
+            <StackPanel HorizontalAlignment="Left" Height="53" VerticalAlignment="Top" Width="106" Margin="0,0,-2,0">
+                <Button Content="字符识别" Height="18" Width="90" Margin="2 5"/>
+            </StackPanel>
+        </GroupBox>
+        <GroupBox Header="车牌图片" HorizontalAlignment="Left" Height="147" Margin="326,10,0,0" VerticalAlignment="Top" Width="340">
+            <StackPanel HorizontalAlignment="Left" Height="119" Margin="10,0,-12,0" VerticalAlignment="Top" Width="320">
+                <Image Name="img_load" Height="108" VerticalAlignment="Top" Margin="10,0,0,0" HorizontalAlignment="Left" Width="304"/>
+            </StackPanel>
+        </GroupBox>
+        <GroupBox Header="车牌定位" HorizontalAlignment="Left" Height="66" Margin="326,169,0,0" VerticalAlignment="Top" Width="167">
+            <Image HorizontalAlignment="Left" Height="40" VerticalAlignment="Top" Width="158" Margin="0,0,-3,0"/>
+        </GroupBox>
+        <GroupBox Header="车牌定位" HorizontalAlignment="Left" Height="66" Margin="499,169,0,0" VerticalAlignment="Top" Width="167">
+            <Image HorizontalAlignment="Left" Height="40" VerticalAlignment="Top" Width="158" Margin="0,0,-3,0"/>
+        </GroupBox>
+        <GroupBox Header="单个字符精确提取" HorizontalAlignment="Left" Height="81" Margin="326,253,0,0" VerticalAlignment="Top" Width="340">
+            <DockPanel HorizontalAlignment="Left" Height="58" LastChildFill="False" Margin="0,0,-2,-12" VerticalAlignment="Top" Width="330">
+                <Image Height="45" Width="30" Margin="20 4 0 4" VerticalAlignment="Top" />
+                <Image Height="45" Width="30" Margin="20 4 0 4" VerticalAlignment="Top" />
+                <Image Height="45" Width="30" Margin="20 4 0 4" VerticalAlignment="Top" />
+                <Image Height="45" Width="30" Margin="20 4 0 4" VerticalAlignment="Top" />
+                <Image Height="45" Width="30" Margin="20 4 0 4" VerticalAlignment="Top" />
+                <Image Height="45" Width="30" Margin="20 4 0 4" VerticalAlignment="Top" />
+            </DockPanel>
+        </GroupBox>
+        <Label Content="车牌为：" HorizontalAlignment="Left" Margin="326,350,0,0" VerticalAlignment="Top" Width="58"/>
+        <TextBlock HorizontalAlignment="Left"  Margin="390,350,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="156" Height="25"/>
+
+
     </Grid>
 </Window>

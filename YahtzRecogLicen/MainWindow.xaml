@@ -17,7 +17,7 @@
         <GroupBox Header="2图片预处理" HorizontalAlignment="Left" Height="127" Margin="10,84,0,0" VerticalAlignment="Top" Width="116">
             <StackPanel HorizontalAlignment="Left" Height="104" VerticalAlignment="Top" Width="106" Margin="0,0,-2,0">
                 <Button Content="图片灰度化" Name="btn_to_gray" Height="18" Width="90" Margin="5,5,5,0" Click="btn_to_gray_Click"/>
-                <Button Content="灰度均衡化" Height="18" Width="90" Margin="5,15,5,0"/>
+                <Button Content="灰度均衡化" Name="btn_equalization" Height="18" Width="90" Margin="5,15,5,0" Click="btn_equalization_Click"/>
                 <Button Content="中值滤波" Height="18" Width="90" Margin="5,15,5,0"/>
             </StackPanel>
         </GroupBox>

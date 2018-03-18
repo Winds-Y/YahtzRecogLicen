@@ -44,7 +44,12 @@ namespace YahtzRecogLicen
                 img_load.Source = imageSource;
             }
         }
-
+        private void show_pic()
+        {
+            IntPtr intPtr = prime_bitmap.GetHbitmap();
+            ImageSource imageSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(intPtr, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+            img_load.Source = imageSource;
+        }
         private void btn_save_Click(object sender, RoutedEventArgs e)
         {
 
@@ -76,10 +81,9 @@ namespace YahtzRecogLicen
                     //MessageBox.Show(color.ToString());
                 }
             }
-            
-            IntPtr intPtr = prime_bitmap.GetHbitmap();
-            ImageSource imageSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(intPtr, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-            img_load.Source = imageSource;
+
+            show_pic();
+
             //for (int i = 0; i < prime_bitmap.Height; i++)
             //{
             //    for (int j = 0; j < prime_bitmap.Width; j++)
@@ -88,6 +92,66 @@ namespace YahtzRecogLicen
             //        MessageBox.Show(color.ToString());
             //    }
             //}
+        }
+
+
+        private void btn_equalization_Click(object sender, RoutedEventArgs e)
+        {
+            int[] num_pixel = new int[256];
+            for (int i = 0; i < prime_bitmap.Height; i++)
+            {
+                for (int j = 0; j < prime_bitmap.Width; j++)
+                {
+                    int x = prime_bitmap.GetPixel(j, i).R;
+                    num_pixel[x]++;
+                }
+            }
+            for (int i = 0; i < 256; i++)
+            {
+                Console.WriteLine(num_pixel[i]);
+            }
+            double[] prob_pixel = new double[256];
+            for(int i = 0; i < 256; i++)
+            {
+                prob_pixel[i] = num_pixel[i] / (prime_bitmap.Height * prime_bitmap.Width * 1.0);
+            }
+            double[] cumu_pixel = new double[256];
+            for(int i = 0; i < 256; i++)
+            {
+                if (i == 0)
+                {
+                    cumu_pixel[i] = prob_pixel[i];
+                }
+                else
+                {
+                    cumu_pixel[i] = cumu_pixel[i - 1] + prob_pixel[i];
+                }
+            }
+            for(int i = 0; i < 256; i++)
+            {
+                cumu_pixel[i]=cumu_pixel[i] * 256 + 0.5;
+                Console.WriteLine("pixel is :" + cumu_pixel[i]);
+            }
+            for(int i = 0; i < prime_bitmap.Height; i++)
+            {
+                for(int j = 0; j < prime_bitmap.Width; j++)
+                {
+                    int x = prime_bitmap.GetPixel(j, i).R;
+                    int value = (int)cumu_pixel[x];
+                    if (value > 255) value = 255;
+                    System.Drawing.Color color = System.Drawing.Color.FromArgb(value, value, value);
+                    prime_bitmap.SetPixel(j, i, color);
+                }
+            }
+            //for (int i = 0; i < prime_bitmap.Height; i++)
+            //{
+            //    for (int j = 0; j < prime_bitmap.Width; j++)
+            //    {
+            //        System.Drawing.Color color = prime_bitmap.GetPixel(j, i);
+            //        MessageBox.Show(color.ToString());
+            //    }
+            //}
+            show_pic();
         }
     }
 }

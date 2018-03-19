@@ -97,6 +97,11 @@ namespace YahtzRecogLicen
 
         private void btn_equalization_Click(object sender, RoutedEventArgs e)
         {
+            if (prime_bitmap == null)
+            {
+                MessageBox.Show("请选择图片");
+                return;
+            }
             int[] num_pixel = new int[256];
             for (int i = 0; i < prime_bitmap.Height; i++)
             {
@@ -152,6 +157,115 @@ namespace YahtzRecogLicen
             //    }
             //}
             show_pic();
+        }
+        private int[,] get_submat(int s,int e,int k, int[,] xios)
+        {
+            int[,]submat= new int[k, k];
+            int cnt_i=0;
+            int cnt_j=0;
+            for(int i = s; i < s + k; i++)
+            {
+                cnt_j = 0;
+                for(int j = e; j < e + k; j++)
+                {
+                    if (cnt_j >= 3) break;
+                    submat[cnt_i, cnt_j++] = xios[j, i];
+                }
+                cnt_i++;
+            }
+            return submat;
+        }
+        private int median(int[,] submat)
+        {
+            int x=0;
+            int row = submat.GetLength(0);
+            int col = submat.GetLength(1);
+            int[] temp = new int[row * col];
+            int cnt = 0;
+            for(int i = 0; i < row; i++)
+            {
+                for(int j = 0; j < col; j++)
+                {
+                    temp[cnt++] = submat[i, j];
+
+                }
+            }
+            Array.Sort(temp);
+
+            Console.WriteLine("取中位数一维数组如下：");
+            for(int i = 0; i < temp.Length; i++)
+            {
+                Console.Write(temp[i] + " ");
+            }Console.WriteLine();
+
+            int mideum = row * col / 2;
+            if (row*col % 2==0)
+            {               
+                x = (int)(temp[mideum - 1] + temp[mideum]) / 2;
+            }
+            else
+            {
+                x = temp[mideum];
+            }
+            return x;
+        }
+
+        private void btn_wave_filter_Click(object sender, RoutedEventArgs e)
+        {
+            if (prime_bitmap == null)
+            {
+                MessageBox.Show("请选择图片");
+                return;
+            }
+            int height = prime_bitmap.Height;
+            int width = prime_bitmap.Width;
+            int[,] xios = new int[width, height];
+            int n = 3;
+            for(int i = 0; i < height; i++)
+            {
+                for(int j = 0; j < width; j++)
+                {
+                    int x = prime_bitmap.GetPixel(j, i).R;
+                    xios[j, i] = x;
+                }
+            }
+            for(int i = 0; i < height-n+1; i++)
+            {
+                for(int j = 0; j < width-n+1; j++)
+                {
+                    int[,] submat = get_submat(i, j,n, xios);
+                    //Console.WriteLine("子矩阵如下：");
+                    //Console.WriteLine("行：" + submat.GetLength(0) + "列：" + submat.GetLength(1));
+                    //for(int m = 0; m < submat.GetLength(0);m++)
+                    //{
+                    //    for(int l = 0; l < submat.GetLength(1); l++)
+                    //    {
+                    //        Console.Write(submat[m, l] + " ");
+                    //    }
+                    //    Console.WriteLine();
+                    //}
+                    int mid=median(submat);
+                    //Console.WriteLine("子矩阵中值：" + mid);
+                    xios[j + (n - 1) / 2, i + (n - 1) / 2] = mid;
+                    
+                }
+            }
+            for(int i = 0; i < height; i++)
+            {
+                for(int j = 0; j < width; j++)
+                {
+                    int value = xios[j, i];
+                    System.Drawing.Color color = System.Drawing.Color.FromArgb(value, value, value);
+                    prime_bitmap.SetPixel(j, i, color);
+                }
+            
+            }
+            show_pic();
+        }
+
+        private void btn_edge_detect_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

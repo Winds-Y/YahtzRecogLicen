@@ -18,7 +18,7 @@
             <StackPanel HorizontalAlignment="Left" Height="104" VerticalAlignment="Top" Width="106" Margin="0,0,-2,0">
                 <Button Content="图片灰度化" Name="btn_to_gray" Height="18" Width="90" Margin="5,5,5,0" Click="btn_to_gray_Click"/>
                 <Button Content="灰度均衡化" Name="btn_equalization" Height="18" Width="90" Margin="5,15,5,0" Click="btn_equalization_Click"/>
-                <Button Content="中值滤波" Height="18" Width="90" Margin="5,15,5,0"/>
+                <Button Content="中值滤波" Name="btn_wave_filter" Click="btn_wave_filter_Click" Height="18" Width="90" Margin="5,15,5,0"/>
             </StackPanel>
         </GroupBox>
         <GroupBox Header="4车牌图片处理" HorizontalAlignment="Left" Height="127" Margin="163,84,0,0" VerticalAlignment="Top" Width="116">
@@ -30,7 +30,7 @@
         </GroupBox>
         <GroupBox Header="3定位处理" HorizontalAlignment="Left" Height="79" Margin="10,242,0,0" VerticalAlignment="Top" Width="116">
             <StackPanel HorizontalAlignment="Left" Height="53" VerticalAlignment="Top" Width="106" Margin="0,0,-2,0">
-                <Button Content="边缘检测" Height="18" Width="90" Margin="2 5"/>
+                <Button Content="边缘检测" Name="btn_edge_detect" Click="btn_edge_detect_Click" Height="18" Width="90" Margin="2 5"/>
                 <Button Content="车牌定位" Height="18" Width="90"/>
             </StackPanel>
         </GroupBox>

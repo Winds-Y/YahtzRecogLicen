@@ -47,7 +47,7 @@
         <GroupBox Header="车牌定位" HorizontalAlignment="Left" Height="66" Margin="326,198,0,0" VerticalAlignment="Top" Width="167">
             <Image HorizontalAlignment="Left" Height="40" VerticalAlignment="Top" Width="158" Margin="0,0,-3,0"/>
         </GroupBox>
-        <GroupBox Header="车牌定位" HorizontalAlignment="Left" Height="66" Margin="499,198,0,0" VerticalAlignment="Top" Width="167">
+        <GroupBox Header="字符切割" HorizontalAlignment="Left" Height="66" Margin="499,198,0,0" VerticalAlignment="Top" Width="167">
             <Image HorizontalAlignment="Left" Height="40" VerticalAlignment="Top" Width="158" Margin="0,0,-3,0"/>
         </GroupBox>
         <GroupBox Header="单个字符精确提取" HorizontalAlignment="Left" Height="81" Margin="326,287,0,0" VerticalAlignment="Top" Width="340">

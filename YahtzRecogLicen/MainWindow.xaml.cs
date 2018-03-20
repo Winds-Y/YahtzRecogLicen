@@ -52,7 +52,15 @@ namespace YahtzRecogLicen
         }
         private void btn_save_Click(object sender, RoutedEventArgs e)
         {
-
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "Jpeg文件(*.jpg)|*.jpg|Bitmap文件(*.bmp)|*.bmp|所有合适文件(*.bmp/*.jpg)|*.bmp;*.jpg";
+            saveFileDialog.FilterIndex = 0;
+            saveFileDialog.RestoreDirectory = true;
+            saveFileDialog.Title = "选择保存文件路径";
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                prime_bitmap.Save(saveFileDialog.FileName);
+            }
         }
 
 
@@ -158,6 +166,7 @@ namespace YahtzRecogLicen
             //}
             show_pic();
         }
+
         private int[,] get_submat(int s,int e,int k, int[,] xios)
         {
             int[,]submat= new int[k, k];
@@ -192,11 +201,11 @@ namespace YahtzRecogLicen
             }
             Array.Sort(temp);
 
-            Console.WriteLine("取中位数一维数组如下：");
-            for(int i = 0; i < temp.Length; i++)
-            {
-                Console.Write(temp[i] + " ");
-            }Console.WriteLine();
+            //Console.WriteLine("取中位数一维数组如下：");
+            //for(int i = 0; i < temp.Length; i++)
+            //{
+            //    Console.Write(temp[i] + " ");
+            //}Console.WriteLine();
 
             int mideum = row * col / 2;
             if (row*col % 2==0)
@@ -210,6 +219,22 @@ namespace YahtzRecogLicen
             return x;
         }
 
+        private int[,] get_bitmap_mat()
+        {
+            int height = prime_bitmap.Height;
+            int width = prime_bitmap.Width;
+            int[,] bitmap_mat = new int[width, height];
+            
+            for (int i = 0; i < height; i++)
+            {
+                for (int j = 0; j < width; j++)
+                {
+                    int x = prime_bitmap.GetPixel(j, i).R;
+                    bitmap_mat[j, i] = x;
+                }
+            }
+            return bitmap_mat;
+        }
         private void btn_wave_filter_Click(object sender, RoutedEventArgs e)
         {
             if (prime_bitmap == null)
@@ -219,21 +244,13 @@ namespace YahtzRecogLicen
             }
             int height = prime_bitmap.Height;
             int width = prime_bitmap.Width;
-            int[,] xios = new int[width, height];
             int n = 3;
-            for(int i = 0; i < height; i++)
-            {
-                for(int j = 0; j < width; j++)
-                {
-                    int x = prime_bitmap.GetPixel(j, i).R;
-                    xios[j, i] = x;
-                }
-            }
-            for(int i = 0; i < height-n+1; i++)
+            int[,] bitmap_mat = get_bitmap_mat();
+            for (int i = 0; i < height-n+1; i++)
             {
                 for(int j = 0; j < width-n+1; j++)
                 {
-                    int[,] submat = get_submat(i, j,n, xios);
+                    int[,] submat = get_submat(i, j,n, bitmap_mat);
                     //Console.WriteLine("子矩阵如下：");
                     //Console.WriteLine("行：" + submat.GetLength(0) + "列：" + submat.GetLength(1));
                     //for(int m = 0; m < submat.GetLength(0);m++)
@@ -246,7 +263,7 @@ namespace YahtzRecogLicen
                     //}
                     int mid=median(submat);
                     //Console.WriteLine("子矩阵中值：" + mid);
-                    xios[j + (n - 1) / 2, i + (n - 1) / 2] = mid;
+                    bitmap_mat[j + (n - 1) / 2, i + (n - 1) / 2] = mid;
                     
                 }
             }
@@ -254,7 +271,7 @@ namespace YahtzRecogLicen
             {
                 for(int j = 0; j < width; j++)
                 {
-                    int value = xios[j, i];
+                    int value = bitmap_mat[j, i];
                     System.Drawing.Color color = System.Drawing.Color.FromArgb(value, value, value);
                     prime_bitmap.SetPixel(j, i, color);
                 }
@@ -263,9 +280,90 @@ namespace YahtzRecogLicen
             show_pic();
         }
 
+        private int get_sobel_value(int row,int col, int[,] sobel_bitmap_mat)
+        {
+            int sobel_value = -1;
+            int[,] sobel =
+            {
+                {-1,-2,-1 },
+                {0,0,0 },
+                {1,2,1 }
+            };
+            int[,] sub_mat = new int[3, 3];
+            int row_cnt = 0;
+            int col_cnt = 0;
+            for(int i = row; i <row+3; i++)
+            {
+                col_cnt = 0;
+                for(int j =col; j < col+3; j++)
+                {
+                    sub_mat[row_cnt, col_cnt++] = sobel_bitmap_mat[i, j];
+                }
+                row_cnt++;
+            }
+            sobel_value = Math.Abs(sub_mat[0, 0] + 2 * sub_mat[0, 1] + sub_mat[0, 2] - sub_mat[2, 0] - 2 * sub_mat[2, 1] - sub_mat[2, 2]) + Math.Abs(sub_mat[0, 2] + 2 * sub_mat[1, 2] + sub_mat[2, 2] - sub_mat[0, 0] - 2 * sub_mat[1, 0] - sub_mat[2, 0]);
+            return sobel_value;
+        }
+        private void set_prime_bitmap(int [,] bitmap_mat)
+        {
+            for (int i = 0; i < prime_bitmap.Height; i++)
+            {
+                for (int j = 0; j < prime_bitmap.Width; j++)
+                {
+                    System.Drawing.Color color;
+                    int x = bitmap_mat[j, i];
+                    //int y = color.ToArgb();
+                    //MessageBox.Show(y + "");
+                    if (x > 255) x = 255;
+                    color = System.Drawing.Color.FromArgb(x, x, x);
+                    prime_bitmap.SetPixel(j, i, color);
+
+                    //MessageBox.Show(color.ToString());
+                }
+            }
+        }
+        
         private void btn_edge_detect_Click(object sender, RoutedEventArgs e)
         {
-
+            int[,] bitmap_mat = get_bitmap_mat();
+            int height = bitmap_mat.GetLength(0);
+            int width = bitmap_mat.GetLength(1);
+            int[,] sobel_bitmap_mat = new int[height + 2, width + 2];
+            for (int i = 0; i < height+2; i++)
+            {
+                for (int j = 0; j < width+2; j++)
+                {
+                    if (i == 0 || i == height + 1)
+                    {
+                        sobel_bitmap_mat[i, j] = 0;
+                    }else if (j == 0 || j == width + 1)
+                    {
+                        sobel_bitmap_mat[i, j] = 0;
+                    }
+                    else
+                    {
+                        sobel_bitmap_mat[i, j] = bitmap_mat[i - 1,j - 1];
+                    }
+                }
+            }
+            //for(int i = 0; i < height + 2; i++)
+            //{
+            //    for(int j = 0; j < width + 2; j++)
+            //    {
+            //        Console.Write(sobel_bitmap_mat[i, j]+" ");
+            //    }
+            //    Console.WriteLine();
+            //}
+            for(int i = 0; i < height; i++)
+            {
+                for(int j = 0; j < width; j++)
+                {
+                    int sobel_value = get_sobel_value(i, j, sobel_bitmap_mat);
+                    bitmap_mat[i, j] = sobel_value;
+                }
+            }
+            set_prime_bitmap(bitmap_mat);
+            show_pic();
         }
     }
 }

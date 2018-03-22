@@ -365,5 +365,39 @@ namespace YahtzRecogLicen
             set_prime_bitmap(bitmap_mat);
             show_pic();
         }
+
+        private void bitmap_binarization()
+        {
+            int average = 0;
+            int width = prime_bitmap.Width;
+            int height = prime_bitmap.Height;
+            for(int i = 0; i <width; i++)
+            {
+                for(int j = 0; j < height; j++)
+                {
+                    System.Drawing.Color color = prime_bitmap.GetPixel(i, j);
+                    average += color.B;
+                }
+            }
+            average = average / (width * height);
+            for(int i = 0; i < width; i++)
+            {
+                for(int j = 0; j < height; j++)
+                {
+                    System.Drawing.Color color = prime_bitmap.GetPixel(i, j);
+                    int x = color.B;
+                    int value = x > average ? 255 : 0;
+                    color = System.Drawing.Color.FromArgb(value, value, value);
+                    prime_bitmap.SetPixel(i, j, color);
+                }
+            }
+            show_pic();
+        }
+
+        private void btn_positioning_licence_Click(object sender, RoutedEventArgs e)
+        {
+            bitmap_binarization();
+            System.Drawing.Point point = new System.Drawing.Point(1, 1);
+        }
     }
 }

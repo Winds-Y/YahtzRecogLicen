@@ -31,7 +31,7 @@
         <GroupBox Header="3定位处理" HorizontalAlignment="Left" Height="79" Margin="10,242,0,0" VerticalAlignment="Top" Width="116">
             <StackPanel HorizontalAlignment="Left" Height="53" VerticalAlignment="Top" Width="106" Margin="0,0,-2,0">
                 <Button Content="边缘检测" Name="btn_edge_detect" Click="btn_edge_detect_Click" Height="18" Width="90" Margin="2 5"/>
-                <Button Content="车牌定位" Height="18" Width="90"/>
+                <Button Content="车牌定位" Name="btn_positioning_licence" Click="btn_positioning_licence_Click" Height="18" Width="90"/>
             </StackPanel>
         </GroupBox>
         <GroupBox Header="5车牌识别" HorizontalAlignment="Left" Height="79" Margin="163,242,0,0" VerticalAlignment="Top" Width="116">

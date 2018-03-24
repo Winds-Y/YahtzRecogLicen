@@ -15,6 +15,8 @@ using System.Windows.Shapes;
 //using System.Windows.Forms;
 using Microsoft.Win32;
 using System.Drawing;
+using System.IO;
+
 
 namespace YahtzRecogLicen
 {
@@ -24,6 +26,8 @@ namespace YahtzRecogLicen
     public partial class MainWindow : Window
     {
         private Bitmap prime_bitmap;
+        private int bitmap_height;
+        private int bitmap_width;
         public MainWindow()
         {
             InitializeComponent();
@@ -43,6 +47,8 @@ namespace YahtzRecogLicen
                 ImageSource imageSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(intPtr, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
                 img_load.Source = imageSource;
             }
+            bitmap_height = prime_bitmap.Height;
+            bitmap_width = prime_bitmap.Width;
         }
         private void show_pic()
         {
@@ -393,11 +399,44 @@ namespace YahtzRecogLicen
             }
             show_pic();
         }
-
+        private void output_bitmap()
+        {            
+            string file_name = "output\\bitmaps.txt";
+            if (File.Exists(file_name))
+            {
+                File.Delete(file_name);
+            }
+            StreamWriter streamWriter = new StreamWriter(file_name, true);
+            for (int j = 0; j < bitmap_height; j++)
+            {               
+                for (int i = 0; i < bitmap_width; i++)
+                {
+                    byte b = prime_bitmap.GetPixel(i, j).B;
+                    streamWriter.Write(b + " ");
+                }
+                streamWriter.WriteLine();
+            }
+            streamWriter.Flush();
+            streamWriter.Close();
+            streamWriter.Dispose();
+        }
         private void btn_positioning_licence_Click(object sender, RoutedEventArgs e)
         {
             bitmap_binarization();
-            System.Drawing.Point point = new System.Drawing.Point(1, 1);
+            Positioning_Licence.setBitmap(prime_bitmap); 
+            //colse
+            Positioning_Licence.dilate();          
+            Positioning_Licence.corrosion();
+            //open
+            Positioning_Licence.corrosion();
+            Positioning_Licence.dilate();
+            prime_bitmap = Positioning_Licence.getBitmap();
+            show_pic();
+            output_bitmap();
+            Bitmap bmp_t = Positioning_Licence.find_plant();
+            IntPtr intPtr = bmp_t.GetHbitmap();
+            ImageSource imageSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(intPtr, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+            image_t.Source = imageSource;
         }
     }
 }

@@ -62,6 +62,8 @@
         </GroupBox>
         <Label Content="车牌为：" HorizontalAlignment="Left" Margin="326,373,0,0" VerticalAlignment="Top" Width="58"/>
         <TextBlock HorizontalAlignment="Left"  Margin="389,373,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="156" Height="25"/>
+        <DockPanel HorizontalAlignment="Left" Height="100" LastChildFill="False" Margin="867,167,-286,0" VerticalAlignment="Top" Width="100"/>
+        <Image HorizontalAlignment="Left" Name="image_t" Height="114" Margin="10,335,0,0" VerticalAlignment="Top" Width="244"/>
 
 
     </Grid>

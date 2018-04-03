@@ -11,7 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
+//using System.Windows.Shapes;
 //using System.Windows.Forms;
 using Microsoft.Win32;
 using System.Drawing;
@@ -28,6 +28,7 @@ namespace YahtzRecogLicen
         private Bitmap prime_bitmap;
         private int bitmap_height;
         private int bitmap_width;
+        private Bitmap gray_bitmap;
         public MainWindow()
         {
             InitializeComponent();
@@ -42,7 +43,8 @@ namespace YahtzRecogLicen
             if (openFileDialog.ShowDialog() == true)
             {
                 string file_name=openFileDialog.FileName;
-                prime_bitmap = (Bitmap)Bitmap.FromFile(file_name, false);
+                Bitmap temp_bitmap= (Bitmap)Bitmap.FromFile(file_name, false);
+                prime_bitmap = temp_bitmap.Clone(new Rectangle(0, 0, temp_bitmap.Width, temp_bitmap.Height), System.Drawing.Imaging.PixelFormat.DontCare);
                 IntPtr intPtr = prime_bitmap.GetHbitmap();
                 ImageSource imageSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(intPtr, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
                 img_load.Source = imageSource;
@@ -55,6 +57,19 @@ namespace YahtzRecogLicen
             IntPtr intPtr = prime_bitmap.GetHbitmap();
             ImageSource imageSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(intPtr, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
             img_load.Source = imageSource;
+        }
+        
+        private void show_pic(Bitmap current_bitmap)
+        {
+            IntPtr intPtr = current_bitmap.GetHbitmap();
+            ImageSource imageSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(intPtr, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+            img_load.Source = imageSource;
+        }
+        private void t_show_pic(Bitmap current_bitmap)
+        {
+            IntPtr intPtr = current_bitmap.GetHbitmap();
+            ImageSource imageSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(intPtr, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+            image_t.Source = imageSource;
         }
         private void btn_save_Click(object sender, RoutedEventArgs e)
         {
@@ -95,7 +110,7 @@ namespace YahtzRecogLicen
                     //MessageBox.Show(color.ToString());
                 }
             }
-
+            gray_bitmap = prime_bitmap.Clone(new Rectangle(0, 0, prime_bitmap.Width, prime_bitmap.Height), System.Drawing.Imaging.PixelFormat.DontCare);
             show_pic();
 
             //for (int i = 0; i < prime_bitmap.Height; i++)
@@ -235,7 +250,7 @@ namespace YahtzRecogLicen
             {
                 for (int j = 0; j < width; j++)
                 {
-                    int x = prime_bitmap.GetPixel(j, i).R;
+                    int x = gray_bitmap.GetPixel(j, i).R;
                     bitmap_mat[j, i] = x;
                 }
             }
@@ -322,7 +337,7 @@ namespace YahtzRecogLicen
                     //MessageBox.Show(y + "");
                     if (x > 255) x = 255;
                     color = System.Drawing.Color.FromArgb(x, x, x);
-                    prime_bitmap.SetPixel(j, i, color);
+                    gray_bitmap.SetPixel(j, i, color);
 
                     //MessageBox.Show(color.ToString());
                 }
@@ -369,7 +384,7 @@ namespace YahtzRecogLicen
                 }
             }
             set_prime_bitmap(bitmap_mat);
-            show_pic();
+            show_pic(gray_bitmap);
         }
 
         private void bitmap_binarization()
@@ -422,21 +437,81 @@ namespace YahtzRecogLicen
         }
         private void btn_positioning_licence_Click(object sender, RoutedEventArgs e)
         {
-            bitmap_binarization();
-            Positioning_Licence.setBitmap(prime_bitmap); 
-            //colse
-            Positioning_Licence.dilate();          
-            Positioning_Licence.corrosion();
-            //open
-            Positioning_Licence.corrosion();
-            Positioning_Licence.dilate();
-            prime_bitmap = Positioning_Licence.getBitmap();
+            
+            
+        }
+
+        //三分点法，取灰度范围的三分之二点
+        private void binarization_class()
+        {
+            int max = 0, min = 0;
+            for(int i = 0; i < bitmap_width; i++)
+            {
+                for(int j = 0; j < bitmap_height; j++)
+                {
+                    int value = gray_bitmap.GetPixel(i, j).R;
+                    max = max < value ? value : max;
+                    min = min > value ? value : min;
+                }
+            }
+            int t = (max - (max - min) / 3);
+            Console.WriteLine("阈值：" + t);
+            for(int i = 0; i < bitmap_width; i++)
+            {
+                for(int j = 0; j < bitmap_height; j++)
+                {
+                    int value = gray_bitmap.GetPixel(i, j).R;
+                    int n = value > t ? 255 : 0;
+                    gray_bitmap.SetPixel(i, j, System.Drawing.Color.FromArgb(n, n, n));
+                }
+            }
+            show_pic(gray_bitmap);
+            
+        }
+
+        private void btn_binarization_Click(object sender, RoutedEventArgs e)
+        {
+            binarization_class();
+        }
+
+        private void btn_stretch_Click(object sender, RoutedEventArgs e)
+        {
+            int max = 0, min = 0;
+            for (int i = 0; i < bitmap_width; i++)
+            {
+                for (int j = 0; j < bitmap_height; j++)
+                {
+                    int value = prime_bitmap.GetPixel(i, j).R;
+                    max = max < value ? value : max;
+                    min = min > value ? value : min;
+                }
+            }
+            Console.WriteLine("max is " + max + "min is: " + min);
+            for(int i = 0; i < bitmap_width; i++)
+            {
+                for(int j = 0; j < bitmap_height; j++)
+                {
+                    int value = prime_bitmap.GetPixel(i, j).R;
+                    int x = (255 / (max - min)) * value - (255 * min) / (max - min);
+                    prime_bitmap.SetPixel(i, j, System.Drawing.Color.FromArgb(x, x, x));
+                }
+            }
             show_pic();
+        }
+
+        private void btn_imopen_Click(object sender, RoutedEventArgs e)
+        {
+            Positioning_Licence.setBitmap(gray_bitmap);
+            Positioning_Licence.gray_corrosion();
+            Positioning_Licence.gray_dilate();         
+            show_pic(gray_bitmap);
             output_bitmap();
-            Bitmap bmp_t = Positioning_Licence.find_plant();
-            IntPtr intPtr = bmp_t.GetHbitmap();
-            ImageSource imageSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(intPtr, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-            image_t.Source = imageSource;
+        }
+
+        private void btn_enhance_Click(object sender, RoutedEventArgs e)
+        {
+            Positioning_Licence.imsubtract();
+            show_pic(gray_bitmap);
         }
     }
 }

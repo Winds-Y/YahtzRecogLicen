@@ -24,8 +24,8 @@
         </GroupBox>
         <GroupBox Header="4车牌图片处理" HorizontalAlignment="Left" Height="153" Margin="202,114,0,0" VerticalAlignment="Top" Width="138">
             <StackPanel HorizontalAlignment="Left" Height="122" VerticalAlignment="Top" Width="128" Margin="0,0,-2,0">
-                <Button Content="车牌灰度化" Height="29" Width="90" Margin="5,5,5,0"/>
-                <Button Content="车牌二值化" Height="29" Width="90" Margin="5,15,5,0"/>
+                <Button Content="车牌灰度化" Name="PlantGray" Click="PlantGray_OnClick" Height="29" Width="90" Margin="5,5,5,0"/>
+                <Button Content="车牌二值化" Name="PlantBinary" Click="Plant_binary_OnClick" Height="29" Width="90" Margin="5,15,5,0"/>
                 <Button Content="字符切割" Height="29" Width="90" Margin="5,15,5,0"/>
             </StackPanel>
         </GroupBox>

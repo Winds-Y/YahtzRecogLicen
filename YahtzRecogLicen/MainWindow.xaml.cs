@@ -16,6 +16,8 @@ using System.Windows.Navigation;
 using Microsoft.Win32;
 using System.Drawing;
 using System.IO;
+using Color = System.Drawing.Color;
+using PixelFormat = System.Drawing.Imaging.PixelFormat;
 
 
 namespace YahtzRecogLicen
@@ -29,6 +31,7 @@ namespace YahtzRecogLicen
         private int bitmap_height;
         private int bitmap_width;
         private Bitmap gray_bitmap;
+        private Bitmap bitmap_licence;
         public MainWindow()
         {
             InitializeComponent();
@@ -548,7 +551,52 @@ namespace YahtzRecogLicen
         private void btn_positioning_licence_Click(object sender, RoutedEventArgs e)
         {
             Bitmap bitmap_plant = Positioning_Licence.find_plant(prime_bitmap);
+            bitmap_licence = bitmap_plant.Clone(new Rectangle(0, 0, bitmap_plant.Width, bitmap_plant.Height),
+                PixelFormat.DontCare);
+            
             t_show_pic(bitmap_plant);
+        }
+
+        private void PlantGray_OnClick(object sender, RoutedEventArgs e)
+        {
+            for (var i = 0; i < bitmap_licence.Width; i++)
+            {
+                for (var j = 0; j < bitmap_licence.Height; j++)
+                {
+                    var r = bitmap_licence.GetPixel(i, j).R;
+                    var g = bitmap_licence.GetPixel(i, j).G;
+                    var b = bitmap_licence.GetPixel(i, j).B;
+                    int x =(int)(.299 * r + .587 * g + .114 * b);
+                    bitmap_licence.SetPixel(i,j,Color.FromArgb(x,x,x));            
+                }
+            }
+            t_show_pic(bitmap_licence);
+        }
+
+        private void Plant_binary_OnClick(object sender, RoutedEventArgs e)
+        {
+            
+            byte[] plant_pixel_count=new byte[255];
+            for (var i = 0; i < bitmap_licence.Width; i++)
+            {
+                for (int j = 0; j < bitmap_licence.Height; j++)
+                {
+                    byte x = bitmap_licence.GetPixel(i, j).R;
+                    plant_pixel_count[x]++;
+                }
+            }
+
+            int cnt = 0;
+            string str = "";
+            foreach (byte b in plant_pixel_count)
+            {
+                Console.Write(b+@" ");
+                str += b + " ";
+                if (cnt++ % 20 == 0)
+                    str += Environment.NewLine;
+                    
+            }
+            Positioning_Licence.writeToFile(str);
         }
     }
 }

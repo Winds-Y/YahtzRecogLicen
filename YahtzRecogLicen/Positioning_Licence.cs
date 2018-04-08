@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Drawing;
 using Emgu.CV.UI;
 using System.Drawing.Imaging;
+using System.IO;
+using System.Reflection.Emit;
 
 namespace YahtzRecogLicen
 {
@@ -238,7 +240,7 @@ namespace YahtzRecogLicen
             //}
             //bitmap.UnlockBits(bitmapData);
             int r = 16;
-            int[,] xios = new int[width, height];
+            byte[,] xios = new byte[width, height];
             for (int i = 0; i < width; i++)
             {
                 for (int j = 0; j < height; j++)
@@ -247,13 +249,18 @@ namespace YahtzRecogLicen
                     int right = i + r < width ? i + r : width;
                     int up = j - r >= 0 ? j - r : 0;
                     int down = j + r < height ? j + r : height;
-                    int min = 256;
+                    byte min = 255;
                     for (int m = left; m < right; m++)
                     {
                         for (int n = up; n < down; n++)
                         {
                             if (distance(i, j, m, n) <= r)
-                                min = Math.Min(min, bitmap.GetPixel(m, n).R);
+                            {
+                                //min = Math.Min(min, bitmap.GetPixel(m, n).R);
+                                byte value = bitmap.GetPixel(m, n).R;
+                                min = min > value ? value : min;
+                            }                          
+                                
                         }
                     }
                     xios[i, j] = min;
@@ -306,7 +313,7 @@ namespace YahtzRecogLicen
             //bitmap.UnlockBits(bitmapData);
 
             int r = 16;
-            int[,] xios = new int[width, height];
+            byte[,] xios = new byte[width, height];
             for (int i = 0; i < width; i++)
             {
                 for (int j = 0; j < height; j++)
@@ -315,13 +322,18 @@ namespace YahtzRecogLicen
                     int right = i + r < width ? i + r : width;
                     int up = j - r >= 0 ? j - r : 0;
                     int down = j + r < height ? j + r : height;
-                    int max = 0;
+                    byte max = 0;
                     for (int m = left; m < right; m++)
                     {
                         for (int n = up; n < down; n++)
                         {
                             if (distance(i, j, m, n) <= r)
-                                max = Math.Max(max, bitmap.GetPixel(m, n).R);
+                            {
+                                //max = Math.Max(max, bitmap.GetPixel(m, n).R);
+                                byte value = bitmap.GetPixel(m, n).R;
+                                max = max < value ? value : max;
+                            }
+                               
                         }
                     }
 
@@ -426,100 +438,21 @@ namespace YahtzRecogLicen
             }
         }
 
-        /// <summary>
-        /// 该函数用于对图像进行腐蚀运算。结构元素为水平方向或垂直方向的三个点，
-        /// 中间点位于原点；或者由用户自己定义3×3的结构元素。
-        /// </summary>
-        /// <param name="dgGrayValue">前后景临界值</param>
-        /// <param name="nMode">腐蚀方式：0表示水平方向，1垂直方向，2自定义结构元素。</param>
-        /// <param name="structure"> 自定义的3×3结构元素</param>
-        public static Bitmap ErosionPic(int dgGrayValue, int nMode, bool[,] structure)
+        public static void writeToFile(string str)
         {
-            Bitmap bmpobj = bitmap.Clone(new Rectangle(0, 0, width, height), System.Drawing.Imaging.PixelFormat.DontCare);
-            int lWidth = bmpobj.Width;
-            int lHeight = bmpobj.Height;
-            Bitmap newBmp = new Bitmap(lWidth, lHeight);
-
-            int i, j, n, m;            //循环变量
-            Color pixel;    //像素颜色值
-
-            if (nMode == 0)
+            string fileName = "output\\log.txt";
+            if (File.Exists(fileName))
             {
-                //使用水平方向的结构元素进行腐蚀
-                // 由于使用1×3的结构元素，为防止越界，所以不处理最左边和最右边
-                // 的两列像素
-                for (j = 0; j < lHeight; j++)
-                {
-                    for (i = 1; i < lWidth - 1; i++)
-                    {
-                        //目标图像中的当前点先赋成黑色
-                        newBmp.SetPixel(i, j, Color.Black);
-
-                        //如果源图像中当前点自身或者左右有一个点不是黑色，
-                        //则将目标图像中的当前点赋成白色
-                        if (bmpobj.GetPixel(i - 1, j).R > dgGrayValue ||
-                            bmpobj.GetPixel(i, j).R > dgGrayValue ||
-                            bmpobj.GetPixel(i + 1, j).R > dgGrayValue)
-                            newBmp.SetPixel(i, j, Color.White);
-                    }
-                }
+                File.Delete(fileName);
             }
-            else if (nMode == 1)
-            {
-                //使用垂真方向的结构元素进行腐蚀
-                // 由于使用3×1的结构元素，为防止越界，所以不处理最上边和最下边
-                // 的两行像素
-                for (j = 1; j < lHeight - 1; j++)
-                {
-                    for (i = 0; i < lWidth; i++)
-                    {
-                        //目标图像中的当前点先赋成黑色
-                        newBmp.SetPixel(i, j, Color.Black);
-
-                        //如果源图像中当前点自身或者左右有一个点不是黑色，
-                        //则将目标图像中的当前点赋成白色
-                        if (bmpobj.GetPixel(i, j - 1).R > dgGrayValue ||
-                            bmpobj.GetPixel(i, j).R > dgGrayValue ||
-                            bmpobj.GetPixel(i, j + 1).R > dgGrayValue)
-                            newBmp.SetPixel(i, j, Color.White);
-                    }
-                }
-            }
-            else
-            {
-                if (structure.Length != 9)  //检查自定义结构
-                    return bmpobj;
-                //使用自定义的结构元素进行腐蚀
-                // 由于使用3×3的结构元素，为防止越界，所以不处理最左边和最右边
-                // 的两列像素和最上边和最下边的两列像素
-                for (j = 1; j < lHeight - 1; j++)
-                {
-                    for (i = 1; i < lWidth - 1; i++)
-                    {
-                        //目标图像中的当前点先赋成黑色
-                        newBmp.SetPixel(i, j, Color.Black);
-                        //如果原图像中对应结构元素中为黑色的那些点中有一个不是黑色，
-                        //则将目标图像中的当前点赋成白色
-                        for (m = 0; m < 3; m++)
-                        {
-                            for (n = 0; n < 3; n++)
-                            {
-                                if (!structure[m, n])
-                                    continue;
-                                if (bmpobj.GetPixel(i + m - 1, j + n - 1).R > dgGrayValue)
-                                {
-                                    newBmp.SetPixel(i, j, Color.White);
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            bmpobj = newBmp;
-            return bmpobj;
+            StreamWriter streamWriter=new StreamWriter(fileName,true);
+            streamWriter.Write(str);
+            streamWriter.Flush();
+            streamWriter.Close();
+            streamWriter.Dispose();
         }
+
+        
 
 
         /// <summary>
@@ -535,7 +468,7 @@ namespace YahtzRecogLicen
 
             bool bModified;            //脏标记
             int i, j, n, m;            //循环变量
-            Color pixel;    //像素颜色值
+            //Color pixel;    //像素颜色值
 
             //四个条件
             bool bCondition1;
@@ -747,5 +680,6 @@ namespace YahtzRecogLicen
             Bitmap bmp = prime_bitmap.Clone(new Rectangle(left, up, right - left, down - up), PixelFormat.DontCare);
             return bmp;
         }
+        
     }
 }

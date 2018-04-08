@@ -1,16 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 //using System.Windows.Shapes;
 //using System.Windows.Forms;
 using Microsoft.Win32;
@@ -510,7 +501,7 @@ namespace YahtzRecogLicen
 
         private void btn_enhance_Click(object sender, RoutedEventArgs e)
         {
-            Positioning_Licence.imsubtract();
+            Positioning_Licence.Imsubtract();
             show_pic(gray_bitmap);
         }
 
@@ -576,19 +567,50 @@ namespace YahtzRecogLicen
         private void Plant_binary_OnClick(object sender, RoutedEventArgs e)
         {
             
-            byte[] plant_pixel_count=new byte[255];
+            byte[] plantPixelCount=new byte[255];
             for (var i = 0; i < bitmap_licence.Width; i++)
             {
                 for (int j = 0; j < bitmap_licence.Height; j++)
                 {
                     byte x = bitmap_licence.GetPixel(i, j).R;
-                    plant_pixel_count[x]++;
+                    plantPixelCount[x]++;
                 }
             }
 
+            int sum = 0;
+            for (int i = 0; i < 255; i++)
+            {
+                sum += i * plantPixelCount[i];
+            }
+
+            int sum0 = 0;
+            int w0 = 0;
+            var maximun = 0.0;
+            int total = bitmap_licence.Width * bitmap_licence.Height;
+            int w1 = 0;
+            byte level;
+            for (byte i = 0; i < 255; i++)
+            {
+                w0 += plantPixelCount[i];
+                if(w0==0)
+                    continue;
+                w1 = total - w0;
+                if(w1==0)
+                    continue;
+                sum0 += i * plantPixelCount[i];
+                var m0 = sum0 / w0;
+                var m1 = (sum - sum0) / w1;
+                var icv = w0 * w1 * (m0 - m1) * (m0 - m1);
+                if (icv >= maximun)
+                {
+                    level = i;
+                    maximun = icv;
+                }
+            }
+            
             int cnt = 0;
             string str = "";
-            foreach (byte b in plant_pixel_count)
+            foreach (byte b in plantPixelCount)
             {
                 Console.Write(b+@" ");
                 str += b + " ";
@@ -596,7 +618,25 @@ namespace YahtzRecogLicen
                     str += Environment.NewLine;
                     
             }
-            Positioning_Licence.writeToFile(str);
+            Positioning_Licence.WriteToFile(str);
+        }
+
+        private void Button_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (bitmap_licence == null)
+            {
+                MessageBox.Show("the licence is null");
+                return;
+            }
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "Jpeg文件(*.jpg)|*.jpg|Bitmap文件(*.bmp)|*.bmp|所有合适文件(*.bmp/*.jpg)|*.bmp;*.jpg";
+            saveFileDialog.FilterIndex = 0;
+            saveFileDialog.RestoreDirectory = true;
+            saveFileDialog.Title = "选择保存文件路径";
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                bitmap_licence.Save(saveFileDialog.FileName);
+            }
         }
     }
 }

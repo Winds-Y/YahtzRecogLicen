@@ -108,29 +108,29 @@ namespace YahtzRecogLicen
         }
         public static void dilate()
         {
-            List<Point> list_black = new List<Point>();
-            List<Point> list_white = new List<Point>();
+            List<Point> listBlack = new List<Point>();
+            List<Point> listWhite = new List<Point>();
             for(int i = 0; i < bitmap.Width-1; i++)
             {
                 for(int j = 0; j < bitmap.Height-1; j++)
                 {
                     if (dilate_isSetBlack(i, j))
                     {
-                        list_black.Add(new Point(i, j));
+                        listBlack.Add(new Point(i, j));
                     }
                     else
                     {
-                        list_white.Add(new Point(i, j));
+                        listWhite.Add(new Point(i, j));
                     }
                 }
             }
-            foreach(Point point in list_black)
+            foreach(Point point in listBlack)
             {
                 bitmap.SetPixel(point.X, point.Y, Color.Black);
                 bitmap.SetPixel(point.X + 1, point.Y, Color.Black);
                 bitmap.SetPixel(point.X, point.Y + 1, Color.Black);
             }
-            foreach(Point point in list_white)
+            foreach(Point point in listWhite)
             {
                 //Color color = Color.FromArgb(1, 1, 1);
                 bitmap.SetPixel(point.X, point.Y, Color.White);
@@ -168,8 +168,8 @@ namespace YahtzRecogLicen
         public static void circle_corrosion()
         {
             double r = 4;
-            List<Point> list_white = new List<Point>();
-            List<Point> list_black = new List<Point>();
+            List<Point> listWhite = new List<Point>();
+            List<Point> listBlack = new List<Point>();
             for(int i = 0; i < width; i++)
             {
                 for(int j = 0; j < height; j++)
@@ -178,19 +178,19 @@ namespace YahtzRecogLicen
                     {
                         if (circle_isSetBlack(i, j, r))
                         {
-                            list_black.Add(new Point(i, j));
+                            listBlack.Add(new Point(i, j));
                         }
                         else
-                            list_white.Add(new Point(i, j));
+                            listWhite.Add(new Point(i, j));
                     }
                     
                 }
             }
-            foreach(Point point in list_black)
+            foreach(Point point in listBlack)
             {
                 bitmap.SetPixel(point.X, point.Y, Color.Black);
             }
-            foreach(Point point in list_white)
+            foreach(Point point in listWhite)
             {
                 bitmap.SetPixel(point.X, point.Y, Color.White);
             }
@@ -350,7 +350,7 @@ namespace YahtzRecogLicen
             }
         }
 
-        public static void imsubtract()
+        public static void Imsubtract()
         {
             for(int i = 0; i < width; i++)
             {
@@ -438,7 +438,7 @@ namespace YahtzRecogLicen
             }
         }
 
-        public static void writeToFile(string str)
+        public static void WriteToFile(string str)
         {
             string fileName = "output\\log.txt";
             if (File.Exists(fileName))
@@ -674,7 +674,7 @@ namespace YahtzRecogLicen
             {
                 right--;
             }
-            Console.WriteLine(left + " " + right + " " + up + " " + down);
+            Console.WriteLine(left + @" " + right + @" " + up + @" " + down);
             left = left - 5 >= 0 ? left - 5 : 0;
             //up = up - 5 >= 0 ? up - 5 : 0;
             Bitmap bmp = prime_bitmap.Clone(new Rectangle(left, up, right - left, down - up), PixelFormat.DontCare);

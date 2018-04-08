@@ -22,11 +22,12 @@
                 <Button Content="二值化" x:Name="btn_binarization" Click="btn_binarization_Click" Width="90" Height="29" Margin="5,15,5,0" />
             </StackPanel>
         </GroupBox>
-        <GroupBox Header="4车牌图片处理" HorizontalAlignment="Left" Height="153" Margin="202,114,0,0" VerticalAlignment="Top" Width="138">
-            <StackPanel HorizontalAlignment="Left" Height="122" VerticalAlignment="Top" Width="128" Margin="0,0,-2,0">
+        <GroupBox Header="4车牌图片处理" HorizontalAlignment="Left" Height="214" Margin="202,114,0,0" VerticalAlignment="Top" Width="138">
+            <StackPanel HorizontalAlignment="Left" Height="187" VerticalAlignment="Top" Width="128" Margin="0,0,-2,0">
                 <Button Content="车牌灰度化" Name="PlantGray" Click="PlantGray_OnClick" Height="29" Width="90" Margin="5,5,5,0"/>
                 <Button Content="车牌二值化" Name="PlantBinary" Click="Plant_binary_OnClick" Height="29" Width="90" Margin="5,15,5,0"/>
                 <Button Content="字符切割" Height="29" Width="90" Margin="5,15,5,0"/>
+                <Button Content="保存车牌" Height="29" Width="90" Margin="5 15" Click="Button_OnClick" />
             </StackPanel>
         </GroupBox>
         <GroupBox Header="3定位处理" HorizontalAlignment="Left" Height="237" Margin="10,355,0,0" VerticalAlignment="Top" Width="136">
@@ -38,7 +39,7 @@
                 <Button Content="车牌定位" x:Name="btn_positioning_licence" Click="btn_positioning_licence_Click" Width="90" Margin="2 5" Height="29"/>
             </StackPanel>
         </GroupBox>
-        <GroupBox Header="5车牌识别" HorizontalAlignment="Left" Height="121" Margin="202,283,0,0" VerticalAlignment="Top" Width="138">
+        <GroupBox Header="5车牌识别" HorizontalAlignment="Left" Height="121" Margin="202,378,0,0" VerticalAlignment="Top" Width="138">
             <StackPanel HorizontalAlignment="Left" Height="64" VerticalAlignment="Top" Width="128" Margin="0,0,-2,0">
                 <Button Content="字符识别" Height="29" Margin="19,5,10,5"/>
             </StackPanel>

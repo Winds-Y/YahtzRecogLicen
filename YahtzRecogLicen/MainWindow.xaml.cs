@@ -80,7 +80,7 @@ namespace YahtzRecogLicen
             saveFileDialog.Title = "选择保存文件路径";
             if (saveFileDialog.ShowDialog() == true)
             {
-                prime_bitmap.Save(saveFileDialog.FileName);
+                gray_bitmap.Save(saveFileDialog.FileName);
             }
         }
 
@@ -92,8 +92,8 @@ namespace YahtzRecogLicen
                 MessageBox.Show("请选择图片");
                 return;
             }
-            
-            for(int i = 0; i < prime_bitmap.Height; i++)
+            gray_bitmap = prime_bitmap.Clone(new Rectangle(0, 0, prime_bitmap.Width, prime_bitmap.Height), System.Drawing.Imaging.PixelFormat.DontCare);
+            for (int i = 0; i < prime_bitmap.Height; i++)
             {
                 for(int j = 0; j < prime_bitmap.Width; j++)
                 {
@@ -105,13 +105,13 @@ namespace YahtzRecogLicen
                     //int y = color.ToArgb();
                     //MessageBox.Show(y + "");
                     color = System.Drawing.Color.FromArgb(x,x,x);
-                    prime_bitmap.SetPixel(j,i,color);
+                    gray_bitmap.SetPixel(j,i,color);
                     
                     //MessageBox.Show(color.ToString());
                 }
             }
-            gray_bitmap = prime_bitmap.Clone(new Rectangle(0, 0, prime_bitmap.Width, prime_bitmap.Height), System.Drawing.Imaging.PixelFormat.DontCare);
-            show_pic();
+            
+            show_pic(gray_bitmap);
 
             //for (int i = 0; i < prime_bitmap.Height; i++)
             //{
@@ -414,6 +414,7 @@ namespace YahtzRecogLicen
             }
             show_pic();
         }
+
         private void output_bitmap()
         {            
             string file_name = "output\\bitmaps.txt";
@@ -426,7 +427,7 @@ namespace YahtzRecogLicen
             {               
                 for (int i = 0; i < bitmap_width; i++)
                 {
-                    byte b = prime_bitmap.GetPixel(i, j).B;
+                    byte b = gray_bitmap.GetPixel(i, j).B;
                     streamWriter.Write(b + " ");
                 }
                 streamWriter.WriteLine();
@@ -435,11 +436,7 @@ namespace YahtzRecogLicen
             streamWriter.Close();
             streamWriter.Dispose();
         }
-        private void btn_positioning_licence_Click(object sender, RoutedEventArgs e)
-        {
-            
-            
-        }
+        
 
         //三分点法，取灰度范围的三分之二点
         private void binarization_class()
@@ -512,6 +509,46 @@ namespace YahtzRecogLicen
         {
             Positioning_Licence.imsubtract();
             show_pic(gray_bitmap);
+        }
+
+        private void imclose_f_Click(object sender, RoutedEventArgs e)
+        {
+            if (Positioning_Licence.getBitmap() == null)
+            {
+                MessageBox.Show("请设置Position_Licence.bitmap");
+            }
+            Positioning_Licence.dalite_SE(5, 19);
+            Positioning_Licence.corrosion_SE(5, 19);
+            show_pic(gray_bitmap);
+        }
+
+        private void imopen_s_Click(object sender, RoutedEventArgs e)
+        {
+            if (Positioning_Licence.getBitmap() == null)
+            {
+                MessageBox.Show("请设置Position_Licence.bitmap");
+            }
+            Positioning_Licence.corrosion_SE(5, 19);
+            Positioning_Licence.dalite_SE(5, 19);
+            Positioning_Licence.corrosion_SE(11, 5);
+            Positioning_Licence.dalite_SE(11, 5);
+            show_pic(gray_bitmap);
+        }
+
+        private void bwareaopen_Click(object sender, RoutedEventArgs e)
+        {
+            if (Positioning_Licence.getBitmap() == null)
+            {
+                MessageBox.Show("请设置Position_Licence.bitmap");
+            }
+            Positioning_Licence.ThiningPic(10);
+            show_pic(gray_bitmap);
+        }
+
+        private void btn_positioning_licence_Click(object sender, RoutedEventArgs e)
+        {
+            Bitmap bitmap_plant = Positioning_Licence.find_plant(prime_bitmap);
+            t_show_pic(bitmap_plant);
         }
     }
 }

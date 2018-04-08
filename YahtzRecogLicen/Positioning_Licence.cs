@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 using Emgu.CV.UI;
+using System.Drawing.Imaging;
 
 namespace YahtzRecogLicen
 {
@@ -33,7 +34,7 @@ namespace YahtzRecogLicen
             return bitmap;
         }
 
-        public static bool corrosion_isSetBlack(int row,int col)
+        private static bool corrosion_isSetBlack(int row,int col)
         {
             if (row != 0 && col != 0)
             {
@@ -54,7 +55,7 @@ namespace YahtzRecogLicen
                 return false;
             }
         }
-        public static bool dilate_isSetBlack(int row,int col)
+        private static bool dilate_isSetBlack(int row,int col)
         {
             
             if(row!=0 && col != 0 )
@@ -133,67 +134,7 @@ namespace YahtzRecogLicen
                 bitmap.SetPixel(point.X, point.Y, Color.White);
             }
         }
-        public static Bitmap find_plant()
-        {
-            int[] Blue_y = new int[height];
-
-            for (int j = 0; j < height; j++)
-            {
-                for (int i = 0; i < width; i++)
-                {
-                    if (bitmap.GetPixel(i, j).ToArgb() == Color.White.ToArgb())
-                    {
-                        Blue_y[j]++;
-                    }
-                }
-            }
-            int max_index_y = -1;
-            int max = -1;
-            for(int i = 0; i < Blue_y.Length; i++)
-            {
-                if (max < Blue_y[i])
-                {
-                    max = Blue_y[i];
-                    max_index_y = i;
-                }
-            }
-            int up = max_index_y;
-            int th = 5;
-            while(up > 0 &&  Blue_y[up]>th )
-            {
-                up--;
-            }
-            int down = max_index_y;
-            while(down < Blue_y.Length && Blue_y[down]>th)
-            {
-                down++;
-            }
-            int[] Blue_x = new int[width];
-            for(int i = 0; i < width; i++)
-            {
-                for(int j = up; j < down; j++)
-                {
-                    if (bitmap.GetPixel(i, j).ToArgb() == Color.White.ToArgb())
-                    {
-                        Blue_x[i]++;
-                    }
-                }
-            }
-            int left = 0;
-            int xh = 3;
-            while(left<width && Blue_x[left] < xh)
-            {
-                left++;
-            }
-            int right = width - 1;
-            while(right>0 && Blue_x[right] < xh)
-            {
-                right--;
-            }
-            Console.WriteLine(left + " " + right + " " + up + " " + down);
-            Bitmap bmp = bitmap.Clone(new Rectangle(left, up, right-left, down-up), System.Drawing.Imaging.PixelFormat.DontCare);
-            return bmp;
-        }
+        
         private static double distance(int x1,int y1,int x2,int y2)
         {
             return Math.Sqrt(Math.Pow(x1 - x2, 2) + Math.Pow(y1 - y2, 2));
@@ -258,11 +199,49 @@ namespace YahtzRecogLicen
 
         public static void gray_corrosion()
         {
+            //Console.WriteLine("niiiiii");
+            //int r = 16;
+            //int[,] xios = new int[width, height];
+            //Rectangle rectangle = new Rectangle(0, 0, width, height);
+            //BitmapData bitmapData = bitmap.LockBits(rectangle, ImageLockMode.ReadWrite,bitmap.PixelFormat);
+            //IntPtr intPtr = bitmapData.Scan0;
+            //int size = Math.Abs(bitmapData.Stride) * height;
+            //byte[] rgb = new byte[size];
+            //byte[] container = new byte[size];
+            //System.Runtime.InteropServices.Marshal.Copy(intPtr, rgb, 0, size);
+            //for(int i = 0; i < rgb.Length; i += 3)
+            //{
+            //    int index = i / 3;
+            //    int x = index / width;
+            //    int y = index % width;
+            //    byte min = 255;
+            //    Console.WriteLine(x + " " + y);
+            //    int left = x - r >= 0 ? x - r : 0;
+            //    int right = x + r < rgb.Length / 3 ? x + r : rgb.Length / 3;
+            //    int up = y - r >= 0 ? y - r : 0;
+            //    int down = y + r < height ? y + r : height;
+            //    int start = (left * width + up)*3;
+            //    int end = (right * width + down)*3;
+            //    for (int j = start; j < end; j+=3)
+            //    {
+            //        int sub_index = j / 3;
+            //        int m = sub_index / width;
+            //        int n = sub_index % width;
+            //        if (distance(x, y, m, n) <= r)
+            //            min = Math.Min(min, rgb[j]);
+            //    }
+            //    container[i] = min;
+            //}
+            //for(int i = 0; i < rgb.Length; i+=3)
+            //{
+            //    rgb[i] = container[i];
+            //}
+            //bitmap.UnlockBits(bitmapData);
             int r = 16;
             int[,] xios = new int[width, height];
             for (int i = 0; i < width; i++)
             {
-                for(int j = 0; j < height; j++)
+                for (int j = 0; j < height; j++)
                 {
                     int left = i - r >= 0 ? i - r : 0;
                     int right = i + r < width ? i + r : width;
@@ -271,17 +250,18 @@ namespace YahtzRecogLicen
                     int min = 256;
                     for (int m = left; m < right; m++)
                     {
-                        for(int n = up; n < down; n++)
+                        for (int n = up; n < down; n++)
                         {
-                            if(distance(i,j,m,n)<=r)
+                            if (distance(i, j, m, n) <= r)
                                 min = Math.Min(min, bitmap.GetPixel(m, n).R);
                         }
                     }
                     xios[i, j] = min;
-                    
+
                 }
 
             }
+
             for (int i = 0; i < width; i++)
             {
                 for (int j = 0; j < height; j++)
@@ -293,6 +273,37 @@ namespace YahtzRecogLicen
         }
         public static void gray_dilate()
         {
+            //int r = 16;
+            //int[,] xios = new int[width, height];
+            //Rectangle rectangle = new Rectangle(0, 0, width, height);
+            //BitmapData bitmapData = bitmap.LockBits(rectangle, ImageLockMode.ReadWrite, bitmap.PixelFormat);
+            //IntPtr intPtr = bitmapData.Scan0;
+            //int size = Math.Abs(bitmapData.Stride) * height;
+            //byte[] rgb = new byte[size];
+            //byte[] container = new byte[size];
+            //System.Runtime.InteropServices.Marshal.Copy(intPtr, rgb, 0, size);
+            //for (int i = 0; i < rgb.Length; i += 3)
+            //{
+            //    int index = i / 3;
+            //    int x = index / width;
+            //    int y = index % width;
+            //    Console.WriteLine(x + " " + y);
+            //    byte max = 0;
+            //    for (int j = 0; j < rgb.Length; j+=3)
+            //    {
+            //        int sub_index = j / 3;
+            //        int m = sub_index / width;
+            //        int n = sub_index % width;
+            //        if (distance(x, y, m, n) <= r)
+            //            max = Math.Max(max, rgb[j]);
+            //    }
+            //    container[i] = max;
+            //}
+            //for (int i = 0; i < rgb.Length; i += 3)
+            //{
+            //    rgb[i] = container[i];
+            //}
+            //bitmap.UnlockBits(bitmapData);
 
             int r = 16;
             int[,] xios = new int[width, height];
@@ -317,15 +328,16 @@ namespace YahtzRecogLicen
                     xios[i, j] = max;
                 }
             }
-            for(int i = 0; i < width; i++)
+            for (int i = 0; i < width; i++)
             {
-                for(int j = 0; j < height; j++)
+                for (int j = 0; j < height; j++)
                 {
-                    int  x= xios[i, j];
+                    int x = xios[i, j];
                     bitmap.SetPixel(i, j, Color.FromArgb(x, x, x));
                 }
             }
         }
+
         public static void imsubtract()
         {
             for(int i = 0; i < width; i++)
@@ -336,6 +348,80 @@ namespace YahtzRecogLicen
                     x = Math.Max(0, x);
                     x = Math.Min(255, x);
                     bitmap.SetPixel(i, j, Color.FromArgb(x, x, x));
+                }
+            }
+        }
+
+        public static void corrosion_SE(int row,int col)
+        {
+            byte[,] xios = new byte[width, height];
+            row /= 2;
+            col /= 2;
+            
+            for(int i = 0; i < width; i++)
+            {
+                for(int j = 0; j < height; j++)
+                {
+                    int left = i - col >= 0 ? i - col : 0;
+                    int right = i + col < width ? i + col : width;
+                    int up = j - row >= 0 ? j - row : 0;
+                    int down = j + row < height ? j + row : height;
+                    byte min = 255;
+                    for (int m = left; m < right; m++)
+                    {
+                        for (int n = up; n < down; n++)
+                        {
+                            byte value = bitmap.GetPixel(m, n).R;
+                            min = min > value ? value : min;
+                        }
+                    }
+                    xios[i, j] = min;
+                }
+            }
+
+            for(int i = 0; i < width; i++)
+            {
+                for(int j = 0; j < height; j++)
+                {
+                    byte value = xios[i, j];
+                    bitmap.SetPixel(i, j, Color.FromArgb(value, value, value));
+                }
+            }
+        }
+        public static void dalite_SE(int row,int col)
+        {
+            byte[,] xios = new byte[width, height];
+            row /= 2;
+            col /= 2;
+
+            for (int i = 0; i < width; i++)
+            {
+                for (int j = 0; j < height; j++)
+                {
+                    int left = i - col >= 0 ? i - col : 0;
+                    int right = i + col < width ? i + col : width;
+                    int up = j - row >= 0 ? j - row : 0;
+                    int down = j + row < height ? j + row : height;
+                    byte max = 0;
+                    for (int m = left; m < right; m++)
+                    {
+                        for (int n = up; n < down; n++)
+                        {
+                            byte value = bitmap.GetPixel(m, n).R;
+                            max = max < value ? value : max;
+                        }
+                    }
+                    xios[i, j] = max;
+                    
+                }
+            }
+
+            for (int i = 0; i < width; i++)
+            {
+                for (int j = 0; j < height; j++)
+                {
+                    byte value = xios[i, j];
+                    bitmap.SetPixel(i, j, Color.FromArgb(value, value, value));
                 }
             }
         }
@@ -440,7 +526,7 @@ namespace YahtzRecogLicen
         /// 该函数用于对图像进行细化运算。要求目标图像为灰度图像
         /// </summary>
         /// <param name="dgGrayValue"></param>
-        public void ThiningPic(int dgGrayValue)
+        public static void ThiningPic(int dgGrayValue)
         {
             Bitmap bmpobj = bitmap.Clone(new Rectangle(0, 0, width, height), System.Drawing.Imaging.PixelFormat.DontCare);
             int lWidth = bmpobj.Width;
@@ -592,11 +678,74 @@ namespace YahtzRecogLicen
                     }
                 }
             }
-           
-            
+
+            bitmap = bmpobj.Clone(new Rectangle(0, 0, width, height), System.Drawing.Imaging.PixelFormat.DontCare);
             // 复制细化后的图像
             //    bmpobj = newBmp;
         }
-        
+
+        public static Bitmap find_plant(Bitmap prime_bitmap)
+        {
+            int[] Blue_y = new int[height];
+
+            for (int j = 0; j < height; j++)
+            {
+                for (int i = 0; i < width; i++)
+                {
+                    if (bitmap.GetPixel(i, j).ToArgb() == Color.White.ToArgb())
+                    {
+                        Blue_y[j]++;
+                    }
+                }
+            }
+            int max_index_y = -1;
+            int max = -1;
+            for (int i = 0; i < Blue_y.Length; i++)
+            {
+                if (max < Blue_y[i])
+                {
+                    max = Blue_y[i];
+                    max_index_y = i;
+                }
+            }
+            int up = max_index_y;
+            int th = 5;
+            while (up > 0 && Blue_y[up] > th)
+            {
+                up--;
+            }
+            int down = max_index_y;
+            while (down < Blue_y.Length && Blue_y[down] > th)
+            {
+                down++;
+            }
+            int[] Blue_x = new int[width];
+            for (int i = 0; i < width; i++)
+            {
+                for (int j = up; j < down; j++)
+                {
+                    if (bitmap.GetPixel(i, j).ToArgb() == Color.White.ToArgb())
+                    {
+                        Blue_x[i]++;
+                    }
+                }
+            }
+            int left = 0;
+            int xh = 3;
+            while (left < width && Blue_x[left] < xh)
+            {
+                left++;
+            }
+            int right = width - 1;
+            while (right > 0 && Blue_x[right] < xh)
+            {
+                right--;
+            }
+            Console.WriteLine(left + " " + right + " " + up + " " + down);
+            left = left - 5 >= 0 ? left - 5 : 0;
+            //up = up - 5 >= 0 ? up - 5 : 0;
+            Bitmap bmp = prime_bitmap.Clone(new Rectangle(left, up, right - left, down - up), PixelFormat.DontCare);
+            return bmp;
+        }
     }
 }

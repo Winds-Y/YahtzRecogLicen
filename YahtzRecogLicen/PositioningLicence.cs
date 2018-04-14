@@ -377,10 +377,7 @@ namespace YahtzRecogLicen
                     _bitmap.SetPixel(i, j, Color.FromArgb(value, value, value));
                 }
             }
-        }
-
-        
-
+        }        
         
 
 

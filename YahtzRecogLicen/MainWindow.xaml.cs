@@ -9,7 +9,6 @@ using Microsoft.Win32;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Windows.Documents;
 using Color = System.Drawing.Color;
 using PixelFormat = System.Drawing.Imaging.PixelFormat;
 
@@ -34,7 +33,7 @@ namespace YahtzRecogLicen
         
         private void btn_open_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog
+            var openFileDialog = new OpenFileDialog
             {
                 Filter = "Jpeg文件(*.jpg)|*.jpg|Bitmap文件(*.bmp)|*.bmp|所有合适文件(*.bmp/*.jpg)|*.bmp;*.jpg",
                 FilterIndex = 2,
@@ -680,7 +679,7 @@ namespace YahtzRecogLicen
             }
         }
 
-        private void setImages(System.Windows.Controls.Image image, Bitmap bitmap)
+        private static void SetImages(System.Windows.Controls.Image image, Bitmap bitmap)
         {
             var intPtr = bitmap.GetHbitmap();
             ImageSource imageSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(intPtr, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
@@ -836,10 +835,25 @@ namespace YahtzRecogLicen
             var cnt = 0;
             foreach (var image in images.Children.OfType<System.Windows.Controls.Image>())
             {
-                setImages(image,bitmaplist[cnt++]);
+                SetImages(image,bitmaplist[cnt++]);
                 if(cnt>bitmaplist.Count)
                     break;
             }
+        }
+
+        private void OpenPlant_OnClick(object sender, RoutedEventArgs e)
+        {
+            var openFileDialog = new OpenFileDialog
+            {
+                Filter = "Jpeg文件(*.jpg)|*.jpg|Bitmap文件(*.bmp)|*.bmp|所有合适文件(*.bmp/*.jpg)|*.bmp;*.jpg",
+                FilterIndex = 2,
+                RestoreDirectory = true
+            };
+            if (openFileDialog.ShowDialog() != true) return;
+            var fileName=openFileDialog.FileName;
+            var tempBitmap= (Bitmap)Image.FromFile(fileName, false);
+            _bitmapLicence = tempBitmap.Clone(new Rectangle(0, 0, tempBitmap.Width, tempBitmap.Height), PixelFormat.DontCare);
+            t_show_pic(_bitmapLicence);
         }
     }
 }

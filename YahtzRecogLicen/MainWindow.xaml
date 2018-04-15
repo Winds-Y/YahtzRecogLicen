@@ -22,12 +22,13 @@
                 <Button Content="二值化" x:Name="btn_binarization" Click="btn_binarization_Click" Width="90" Height="29" Margin="5,15,5,0" />
             </StackPanel>
         </GroupBox>
-        <GroupBox Header="4车牌图片处理" HorizontalAlignment="Left" Height="214" Margin="202,114,0,0" VerticalAlignment="Top" Width="138">
-            <StackPanel HorizontalAlignment="Left" Height="187" VerticalAlignment="Top" Width="128" Margin="0,0,-2,0">
+        <GroupBox Header="4车牌图片处理" HorizontalAlignment="Left" Height="248" Margin="202,114,0,0" VerticalAlignment="Top" Width="138">
+            <StackPanel HorizontalAlignment="Left" Height="227" VerticalAlignment="Top" Width="128" Margin="0,0,-2,0">
+                <Button Content="打开车牌" Height="29" Width="90" Name="openPlant" Margin="5 10" Click="OpenPlant_OnClick" />
                 <Button Content="车牌灰度化" Name="PlantGray" Click="PlantGray_OnClick" Height="29" Width="90" Margin="5,5,5,0"/>
                 <Button Content="车牌二值化" Name="PlantBinary" Click="Plant_binary_OnClick" Height="29" Width="90" Margin="5,15,5,0"/>
                 <Button Content="字符切割" Name="cutPlant" Click="CutPlant_OnClick" Height="29" Width="90" Margin="5,15,5,0"/>
-                <Button Content="保存车牌" Height="29" Width="90" Name="savePlant" Margin="5 15" Click="SavePlant_OnClick"  />
+                <Button Content="保存车牌" Height="29" Width="90" Name="savePlant" Margin="5 15" Click="SavePlant_OnClick"  />           
             </StackPanel>
         </GroupBox>
         <GroupBox Header="3定位处理" HorizontalAlignment="Left" Height="237" Margin="10,355,0,0" VerticalAlignment="Top" Width="136">

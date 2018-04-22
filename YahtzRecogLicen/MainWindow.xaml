@@ -42,7 +42,7 @@
         </GroupBox>
         <GroupBox Header="5车牌识别" HorizontalAlignment="Left" Height="121" Margin="202,378,0,0" VerticalAlignment="Top" Width="138">
             <StackPanel HorizontalAlignment="Left" Height="64" VerticalAlignment="Top" Width="128" Margin="0,0,-2,0">
-                <Button Content="字符识别" Height="29" Margin="19,5,10,5"/>
+                <Button Content="字符识别" Name="charRegonize" Click="CharRegonize_OnClick" Height="29" Margin="19,5,10,5"/>
             </StackPanel>
         </GroupBox>
         <GroupBox Header="车牌图片" HorizontalAlignment="Left" Height="257" Margin="389,10,0,0" VerticalAlignment="Top" Width="551">
@@ -68,7 +68,7 @@
             </DockPanel>
         </GroupBox>
         <Label Content="车牌为：" HorizontalAlignment="Left" Margin="389,568,0,0" VerticalAlignment="Top" Width="58"/>
-        <TextBlock HorizontalAlignment="Left"  Margin="468,568,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="156" Height="24"/>
+        <TextBlock Name="TextBlockrecogResult" HorizontalAlignment="Left"  Margin="468,568,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="156" Height="24"/>
         <Button Content="灰度拉伸" x:Name="btn_stretch" Width="90" Margin="1022,178,199,439" Click="btn_stretch_Click"/>
         <Button Content="灰度均衡化" x:Name="btn_equalization" Width="90" Margin="1022,238,199,378" Click="btn_equalization_Click"/>
         <Button Content="中值滤波" x:Name="btn_wave_filter" Click="btn_wave_filter_Click" Width="90" Margin="1022,296,199,320"/>

@@ -7,6 +7,7 @@ using System.Windows.Media.Imaging;
 //using System.Windows.Forms;
 using Microsoft.Win32;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
 using Color = System.Drawing.Color;
@@ -25,7 +26,8 @@ namespace YahtzRecogLicen
         private int _bitmapWidth;
         private Bitmap _grayBitmap;
         private Bitmap _bitmapLicence;
-        private Bitmap smallBitmap;
+        private Bitmap _smallBitmap;
+        private readonly List<Bitmap> _bitmaplist=new List<Bitmap>();
         public MainWindow()
         {
             InitializeComponent();
@@ -230,7 +232,7 @@ namespace YahtzRecogLicen
 
             var mideum = row * col / 2;
             if (row*col % 2==0)
-            {               
+            {
                 x = (temp[mideum - 1] + temp[mideum]) / 2;
             }
             else
@@ -434,8 +436,8 @@ namespace YahtzRecogLicen
             streamWriter.Close();
             streamWriter.Dispose();
         }
-        
-        private void output_bitmap(Bitmap bitmap)
+
+        private static void output_bitmap(Bitmap bitmap)
         {
             const string fileName = "output\\bitmaps.txt";
             if (File.Exists(fileName))
@@ -628,7 +630,7 @@ namespace YahtzRecogLicen
                 if (!(icv >= maximun)) continue;
                 level = i;
                 maximun = icv;
-                PositioningLicence.WriteToFile(m0+" "+m1+" "+icv+" "+Environment.NewLine);
+                //PositioningLicence.WriteToFile(m0+" "+m1+" "+icv+" "+Environment.NewLine);
 
             }
 
@@ -644,7 +646,7 @@ namespace YahtzRecogLicen
                 }
             }
             t_show_pic(_bitmapLicence);
-            var cnt = 0;
+            /*var cnt = 0;
             var str = "";
             foreach (var b in plantPixelCount)
             {
@@ -654,7 +656,7 @@ namespace YahtzRecogLicen
                     str += Environment.NewLine;
                     
             }
-            PositioningLicence.WriteToFile(str);
+            PositioningLicence.WriteToFile(str);*/
         }
 
 
@@ -756,32 +758,58 @@ namespace YahtzRecogLicen
             PositioningLicence.WriteToFile("x0 is:"+x0+Environment.NewLine+"x1 is:"+x1+Environment.NewLine);
             PositioningLicence.WriteToFile("width is:"+_bitmapLicence.Width+Environment.NewLine);
             
-            smallBitmap = _bitmapLicence.Clone(new Rectangle(x0, py0, x1 - x0, py1 - py0), PixelFormat.DontCare);
-            t_show_pic(smallBitmap);
-
-            var subColSum = new int[smallBitmap.Width];
-            for (var i = 0; i < smallBitmap.Width; i++)
+            _smallBitmap = _bitmapLicence.Clone(new Rectangle(x0, py0, x1 - x0, py1 - py0), PixelFormat.DontCare);
+            t_show_pic(_smallBitmap);
+            
+            
+            var subColSum = new int[_smallBitmap.Width];
+            for (var i = 0; i < _smallBitmap.Width; i++)
             {
                 var sum = 0;
-                for (var j = 0; j < smallBitmap.Height; j++)
+                for (var j = 0; j < _smallBitmap.Height; j++)
                 {
-                    int x = smallBitmap.GetPixel(i, j).R;
-                    x = x == 0 ? 0 : 1;
+                    int x = _smallBitmap.GetPixel(i, j).R;
+                    x = x == 0 ? 0 : 1;                    
                     sum += x;
-                }
+                }               
                 subColSum[i] = sum;
+            }
+            
+            PositioningLicence.WriteToFile("smallbitmap is:"+Environment.NewLine);
+            for (var j = 0; j < _smallBitmap.Height; j++)
+            {
+                for (var i = 0; i < _smallBitmap.Width; i++)
+                {
+                    int x = _smallBitmap.GetPixel(i, j).R;
+                    x = x == 0 ? 0 : 1;
+                    PositioningLicence.WriteToFile(x+" ");
+                }
+                PositioningLicence.WriteToFile(Environment.NewLine);
+            }
+            
+            PositioningLicence.WriteToFile("每列像素值"+Environment.NewLine);
+            foreach (var i in subColSum)
+            {
+                PositioningLicence.WriteToFile(i+" ");
             }
 
             var len = subColSum.Count(t => t == 0);
             var mark = new int[len];
             var ct = 0;
-            for (var i = 0; i < smallBitmap.Width; i++)
+            for (var i = 0; i < _smallBitmap.Width; i++)
             {
                 if (subColSum[i] == 0)
                 {
                     mark[ct++] = i;                   
                 }
             }
+            
+            PositioningLicence.WriteToFile(Environment.NewLine+"0 的位置："+Environment.NewLine);
+            foreach (var i in mark)
+            {
+                PositioningLicence.WriteToFile(i+" ");
+            }
+            PositioningLicence.WriteToFile(Environment.NewLine);
 
             var c=0;
             var list = new List<List<int>>();
@@ -803,8 +831,18 @@ namespace YahtzRecogLicen
                 list.Add(li);
                 c = j;
             }
+            
+            PositioningLicence.WriteToFile("0间隔如下："+Environment.NewLine);
+            foreach (var fir in list)
+            {
+                foreach (var i in fir)
+                {
+                    PositioningLicence.WriteToFile(i+" ");
+                }
+                PositioningLicence.WriteToFile(Environment.NewLine);
+            }
 
-            len = smallBitmap.Width;
+            len = _smallBitmap.Width;
             var templist = new List<int>();
             foreach (var lir in list)
             {
@@ -813,30 +851,51 @@ namespace YahtzRecogLicen
                     templist.Add(i);
                 }
             }
-            templist.Insert(0,1);
+            templist.Insert(0,-1);
             templist.Add(len);
             var charsub=new List<List<int>>();
-            for (var i = 0; i < templist.Count-1; i += 2)
+            for (var i = 0; i < templist.Count-2; i += 2)
             {
-                charsub.Add(new List<int>{templist[i]-1,templist[i+1]-1});
+                charsub.Add(new List<int>{templist[i]+1,templist[i+1]-1});
             }
-            var bitmaplist=new List<Bitmap>();
+            
+            PositioningLicence.WriteToFile("字间隔如下："+Environment.NewLine);
+            foreach (var fir in charsub)
+            {
+                foreach (var i in fir)
+                {
+                    PositioningLicence.WriteToFile(i+" ");
+                }
+                PositioningLicence.WriteToFile(Environment.NewLine);
+            }
+            
+            PositioningLicence.WriteToFile("各个字符大小："+Environment.NewLine);
+            
             //MessageBox.Show(smallBitmap.Width + "  " + smallBitmap.Height);
             //var tpt = smallBitmap.Clone(new Rectangle(0, 4, smallBitmap.Width, smallBitmap.Height), PixelFormat.DontCare);
             foreach (var fir in charsub)
             {
                 var left = fir[0];
                 var right = fir[1];
-                var tempbitmap = smallBitmap.Clone(new Rectangle(left, 0, right - left, smallBitmap.Height),
+                var tempbitmap = _smallBitmap.Clone(new Rectangle(left, 0, right - left, _smallBitmap.Height),
                     PixelFormat.DontCare);
-                bitmaplist.Add(tempbitmap);
+                
+                var bitmap=new Bitmap(9,16);
+                var g=Graphics.FromImage(bitmap);
+                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                g.DrawImage(tempbitmap, new Rectangle(0, 0, 9, 16),
+                    new Rectangle(0, 0, tempbitmap.Width, tempbitmap.Height), GraphicsUnit.Pixel);
+                g.Dispose();
+                
+                PositioningLicence.WriteToFile(bitmap.Width+"x"+bitmap.Height+Environment.NewLine);
+                _bitmaplist.Add(bitmap);
             }
-
+            
             var cnt = 0;
             foreach (var image in images.Children.OfType<System.Windows.Controls.Image>())
             {
-                SetImages(image,bitmaplist[cnt++]);
-                if(cnt>bitmaplist.Count)
+                SetImages(image,_bitmaplist[cnt++]);
+                if(cnt>_bitmaplist.Count)
                     break;
             }
         }
@@ -846,7 +905,7 @@ namespace YahtzRecogLicen
             var openFileDialog = new OpenFileDialog
             {
                 Filter = "Jpeg文件(*.jpg)|*.jpg|Bitmap文件(*.bmp)|*.bmp|所有合适文件(*.bmp/*.jpg)|*.bmp;*.jpg",
-                FilterIndex = 2,
+                FilterIndex = 1,
                 RestoreDirectory = true
             };
             if (openFileDialog.ShowDialog() != true) return;
@@ -855,5 +914,119 @@ namespace YahtzRecogLicen
             _bitmapLicence = tempBitmap.Clone(new Rectangle(0, 0, tempBitmap.Width, tempBitmap.Height), PixelFormat.DontCare);
             t_show_pic(_bitmapLicence);
         }
+
+        private readonly List<string> _numList=new List<string>();
+        private readonly List<string>_charList=new List<string>();
+        private string _recognizeResult;
+        private void CharRegonize_OnClick(object sender, RoutedEventArgs e)
+        {
+            GetNumPath();
+            GetCharPath();
+            //MessageBox.Show(_charList.Count + "  " + _numList.Count);
+            foreach (var s in _charList)
+            {
+                PositioningLicence.WriteToFile(s+Environment.NewLine);
+            }
+
+            _recognizeResult = "";
+            for (var i = 0; i < _bitmaplist.Count; i++)
+            {
+                var picBitmap = _bitmaplist[i];
+                if (i == 0)
+                {
+                    var minDiss = 1000;
+                    var filename = "";
+                    foreach (var charPath in _charList)
+                    {                    
+                        var charBitmap = (Bitmap) Image.FromFile(charPath,false);
+                        var x = 0;
+                        BitmapDistance(picBitmap,charBitmap,ref x);
+                        if (minDiss <= x) continue;
+                        minDiss = x;
+                        filename = charPath;
+                    }
+                    PositioningLicence.WriteToFile("最接近的汉字字符："+filename+Environment.NewLine);
+                    var fontArray = filename.Split('\\');
+                    PositioningLicence.WriteToFile("分割成字串个数："+fontArray.Length+Environment.NewLine);
+                    var reChar = fontArray[fontArray.Length - 1][0];
+                    PositioningLicence.WriteToFile("字符是："+reChar+Environment.NewLine);
+                    _recognizeResult += reChar;
+                }
+                else
+                {
+                    var minDiss = 1000;
+                    var filename = "";
+                    foreach (var numPath in _numList)
+                    {
+                        var numBitmap = (Bitmap) Image.FromFile(numPath, false);
+                        var x = 0;
+                        BitmapDistance(picBitmap,numBitmap,ref x);
+                        if (minDiss <= x) continue;
+                        minDiss = x;
+                        filename = numPath;
+                    }
+                    PositioningLicence.WriteToFile("最接近的数字字符："+filename+Environment.NewLine);
+                    var fontArray = filename.Split('\\');
+                    PositioningLicence.WriteToFile("分割成字串个数："+fontArray.Length+Environment.NewLine);
+                    var reChar = fontArray[fontArray.Length - 1][0];
+                    PositioningLicence.WriteToFile("字符是："+reChar+Environment.NewLine);
+                    _recognizeResult += reChar;
+                }
+            }
+
+            TextBlockrecogResult.Text = _recognizeResult;
+        }
+
+        private void  GetNumPath()
+        {
+            const string numPath = "MYsource\\char";
+            var dir=new DirectoryInfo(numPath);
+            var fil = dir.GetFiles();
+            foreach (var fileInfo in fil)
+            {
+                var name = fileInfo.FullName;
+                var index = name.IndexOf(".", StringComparison.Ordinal);
+                var suffix = name.Substring(index + 1);
+                if(!suffix.Equals("bmp"))continue;
+                _numList.Add(name);
+            }
+            PositioningLicence.WriteToFile("num number :"+_numList.Count+Environment.NewLine);
+        }
+
+        private void GetCharPath()
+        {
+            const string charPath = "MYsource\\font";
+            var dir=new DirectoryInfo(charPath);
+            var fil = dir.GetFiles();
+            foreach (var fileInfo in fil)
+            {
+                var name = fileInfo.FullName;
+                var index = name.IndexOf(".", StringComparison.Ordinal);
+                var suffix = name.Substring(index + 1);
+                if(!suffix.Equals("bmp"))continue;
+                _charList.Add(name);
+            } 
+            PositioningLicence.WriteToFile("font number is: "+_charList.Count+Environment.NewLine);
+        }
+
+        private static void BitmapDistance(Bitmap b1, Bitmap b2,ref int x)
+        {
+            if (b1.Width != b2.Width || b1.Height != b2.Height)
+            {
+                MessageBox.Show("两个bitmap尺寸不同");
+                return;
+            }
+
+            for (var i = 0; i < b1.Width; i++)
+            {
+                for (var j = 0; j < b1.Height; j++)
+                {
+                    int m = b1.GetPixel(i, j).R;
+                    int n = b2.GetPixel(i, j).R;
+                    if (m != n) x++;
+                }
+            }
+        }
+        
     }
 }
